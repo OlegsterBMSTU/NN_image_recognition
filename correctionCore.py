@@ -31,6 +31,8 @@ def getArrays(i,j): # Заполняем массивы данных. Перем
     with open(fileName,'r') as f:
         outputArray = np.asfarray(f.readlines(),float)  # filling array of output data
     # transform 1d to 2d array, where 1 side is  equality square root from length of array
+    outputArray = list(outputArray)
+    print(len(outputArray))
     outputArray = np.reshape(outputArray,(-1,int(len(outputArray)**(1/2))))
     f.close()
     fileName = "exitConvolution"+str(i)+str(j)+'.txt'
@@ -45,6 +47,7 @@ def getArrays(i,j): # Заполняем массивы данных. Перем
         inputArray = np.asfarray(f.readlines(),float)
 #    inputArray = np.reshape(inputArray,(-1,int(len(inputArray)**(1/2)))) #надо продумать обрезку краты.
     f.close()
+
     choiseCoordinate(outputArray,middleArray)
     writeNewCore(i,j,inputArray)
 
@@ -56,6 +59,9 @@ def choiseCoordinate(outputArray = [], middleArray = []):
     number = randrange(0,len(outputArray))
     p.i = number//len(outputArray)
     p.j = number % len(outputArray)
+    print(number,p.i,p.j)
+    print("outputArray\nlen=", len(outputArray)," high=", (outputArray.__len__()))
+    print("middleArray\nlen=", middleArray.__len__(), " high=", middleArray.__sizeof__())
     for i in range(p.i*4,p.i*4+4):
         for j in range(p.j*4,p.j*4+4):
             if outputArray[p.i][p.j] == middleArray[i][j]: # Подумать. Возможно надо middle & input

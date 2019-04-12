@@ -3,11 +3,12 @@ from common import Point
 import numpy as np
 from functools import reduce
 import chooseFile as cf
+from subConvolutionLayerCalculate import getSize
 
 
 def convolution(index1, index2):  #Create exitConvolution.txt
 
-
+    sizeOfPictures = getSize()
     filename = (cf.optionsOfColorFile[index1]() if index2 ==0 else cf.choiseOfMatrixWorks(index1))
     print(filename)
     #Подаем определенны файл на чтение ( один из трех  цветов либо
@@ -32,7 +33,7 @@ def convolution(index1, index2):  #Create exitConvolution.txt
     p.i=0
     p.j=0
     coordinate = p.i*4+p.j
-    matrix = list(map((lambda x:x*weightConv[coordinate]),matrix))  #преобразовали весь массив, умножив на вес
+    #matrix = list(map((lambda x:x*weightConv[coordinate]),matrix))  #преобразовали весь массив, умножив на вес
                                                                     # в weightConvArray
 
     # Теперь надо пройтись картой 5х5 по всему массиву matrix
@@ -43,19 +44,26 @@ def convolution(index1, index2):  #Create exitConvolution.txt
     f.close()
     coord = Point()
     newArray = []
-    timeValue =0
-    sizeArray = int(((len(matrix))**(1/2))/1)
+    timeValue =0.0
+    sizeArray = int(((len(matrix))**(1/2))/1)   # будет длина массива
+    matrix = list(matrix)       # преобразуем в лист
+    print("===",type(matrix[10]))
+    del matrix[sizeArray**2:]   # обрезаем ненужное чтобы привести к квадратному виду
+    matrix = np.asfarray(matrix,float)
+    print("===", type(matrix[10]))
+    print(len(matrix))
+
     #(n = 10) if (index2==0) else (n = 4)
-    n= (int(10) if index2==0 else int(4))
+    n= (int(10) if index2==0 else int(4))                            # Обрезаем карту. Надо срезать по уму. Было до 10 и до 4
     for i in range(sizeArray-n):       # Обрезаем карту. Надо срезать по уму. Было до 10 и до 4
         for j in range(sizeArray-n):
-            coord.i = i * sizeArray + j
+            coord.i = int(i * (sizeArray-n) + j)
             for x in range(5): #потому что карта 5х5
                 for y in range(5):
-                    coord.j = x * 5 + y
+                    coord.j = int(x * 5 + y)
                     timeValue = timeValue + matrix[coord.i+ coord.j] * mapWeight[coord.j]   #Здесь идет наращивание значени при свертке
             newArray.append(timeValue)     # собираем массив
-            timeValue=0
+            timeValue=0.0
 
     filename = "exitConvolution"+str(index1)+str(index2)+".txt"
     with open(filename,'w') as f:

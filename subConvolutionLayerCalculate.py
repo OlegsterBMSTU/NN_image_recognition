@@ -21,7 +21,6 @@ def test(i1,i2):
         arr = np.asfarray(arr, float) # Преобразовываем во float
     arr = list(arr) # преобразуем в список
     #del arr[int(size.i*(len(arr)//size.i)):]   # удаляем лишние элементы, чтобы сделать номальную прямоугольную матрицу и не добавлть лишнего
-    print(size.i, size.j, len(arr))
     f.close()
 
 
@@ -30,6 +29,7 @@ def test(i1,i2):
     # должен быть квадратны то мы извлекаем квадратны корень из длины всего массива
     del arr[int(sizeArray*len(arr)//sizeArray):] #обрехаем под прямоуголькую матрицу. Лучше удалить крайние элементы, чем наращивать непонятно чем.
     global matrixWork
+    print("len_arr=",len(arr), "sizeArray=",sizeArray)
     matrixWork = np.reshape(arr,(-1,sizeArray)) #Преобразовали одномерный в двумерный массив размерностью sizeArray
 
 def reLu(i1,i2):
@@ -90,22 +90,34 @@ def reLu(i1,i2):
 
 
 
-    fileName = "matrixWork"+str(i1)+str(i2)+".txt"
-    with open(fileName, 'w') as f:
-        f.writelines("%f\n" % z for z in maximum)
-    f.close()
+
 
 
 def newRelu(index1, index2):
     size = 4
-    maximum = np.zeros(len(matrixWork) * (matrixWork.size//len(matrixWork)))       #Создали массив квадратной матрицы размером m*n, заполненны нулями
+    print("size_matrix_work: ",matrixWork.size,"\nhigh_MW= ",matrixWork.size//len(matrixWork))
+    maximum = np.zeros((matrixWork.size)//(size**2))       #Создали массив квадратной матрицы размером m*n, заполненны нулями
     maximum = np.asfarray(maximum,float)    # на всякий сучай преобразуем во float
     # индекс массива определяем как: количество строк по 4 матрицы * i // 4 + j // 4
-    a = (matrixWork.size//len(matrixWork)) // size
-    for i in range(matrixWork.size//len(matrixWork)):
+    quantityOfString = (len(matrixWork)// size)    #
+    print("len_maximum_array=", len(maximum))
+    print("numberString=",quantityOfString)
+    print("max_i=",len(matrixWork))
+    print("max_j=", matrixWork.size//len(matrixWork))
+    for i in range(len(matrixWork)):
         for j in range(len(matrixWork)):
-            maximum[a*(i//size) + j//size] = max(matrixWork[i][j],maximum[a*(i//size) + j//size])
+            if ((j+1)%size == 0) and ((i+1)%size == 0):
+                maximum[quantityOfString*(i//size)+(j//size)] = matrixWork[i][j]
 
+
+    for i in range(len(matrixWork)):
+        for j in range(len(matrixWork)):
+            maximum[quantityOfString*(i//size) + j//size] = max(matrixWork[i][j],maximum[quantityOfString*(i//size) + (j//size)])
+    print("len_maximum_array=" ,len(maximum))
+    fileName = "matrixWork"+str(index1)+str(index2)+".txt"
+    with open(fileName, 'w') as f:
+        f.writelines("%f\n" % z for z in maximum)
+    f.close()
 
 
 

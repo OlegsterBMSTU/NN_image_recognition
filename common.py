@@ -11,9 +11,13 @@ import sys
 import os, glob
 
 class Point:    #Будем передавать в функции для записи координат
-    i: int
-    j: int
-    value: int
+    def __init__(self):
+        self.i = 0
+        self.j = 0
+        self.value=0;
+    #i: int
+    #j: int
+    #value: int
 
 def Stop():
     print("Ya vse")
@@ -29,15 +33,18 @@ if __name__ == '__main__':
     readImage.array(name)
     writeFile()
     print(len(bmpFile))
-    # allInit.init()
+    
     """
-   # allInit.initConversationWeight()
+    #allInit.initConversationWeight()
+    #allInit.initCoreWeight()
+    #allInit.initMlpWeight()
+
     print(os.getcwd())
-    path = os.getcwd()+"/__image"
+    path = os.getcwd() + "\__image/"
     print(path)
     listOfFiles= [f for f in os.listdir(path) if f.endswith('.bmp')]
     print (listOfFiles)
-    print(listOfFiles[3])
+    print(listOfFiles[0])
     print(len(listOfFiles))
     i=0
     for i in listOfFiles:
@@ -74,7 +81,6 @@ if __name__ == '__main__':
 
     # Надо продумать логику как индексы передавать в объекты чтобы правильно вызывать файлы.
     # Так же надо продумать как именно хватать первые файлы и как именно вторые
-
 
 
     #print(bmpFile[10])

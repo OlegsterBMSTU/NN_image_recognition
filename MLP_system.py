@@ -89,13 +89,14 @@ def readDataForInputMlp():
     f.close()
     hidden1 = []                                        # Массив объектов нейронов 1 скрытого слоя
     hidden2 = []         # Массив объектов нейронов 2 скрытого слоя
-
-    for i in range(weightMlp0.size):
+    print("weight_mlp_size0=",weightMlp0.size)
+    print("inputNeuron.value = len ==", inputNeurons.__len__())
+    for i in range(inputNeurons.__len__()):     # По количеству нейронов входного слоя
         #hidden1.append(Neurons(1/(1+exp(weightMlp0[i]*inputNeurons[i].value))))
         hidden1.append(Neurons(activation(inputNeurons[i].value)))  # Создаем объекты 1 скрытого слоя, прогоняя через сигмоиду сразу
 
     for i in range(2000) : hidden2.append(Neurons(0))   #Создаем 2000 объектов класса Нейронов с начальным значением переменной =0
-    for i in range(len(weightMlp1)):
+    for i in range(inputNeurons.__len__()):
         for j in range(2000):
             hidden2[j].value += weightMlp1[i][j] * hidden1[i].value # Расчитываем переменную в скрытом слое
     for i in range(2000):
