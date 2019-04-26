@@ -1,3 +1,10 @@
+"""
+This file is not worked. It was corrected and rewrite to new file: mlp.py
+This file needs to delete
+"""
+
+
+
 #Здесь будет находиться MLP сеть с двумя скрытыми слоями и одним выходом. Входной слой inputMLP бует содержать
 # количество нейронов равное количетву выходных данных второй половины matrixWork. Далее inputMLP будет передаваться
 # в первый скрытый слой по связи 1 к 1, следовательно в первом скрытом слое будет столько же элементов.
@@ -9,10 +16,16 @@ import numpy as np
 from classSystem import Neurons
 from math import exp
 import backPropogation
-from common import Stop
+from main import Stop
+from main import contollerOfError
 global key
 
-step = 0.7      # learning speed
+step = 1.0      # learning speed
+
+options = {
+    30: 0.3,
+    70: 0.7,
+}
 
 def activation(arg):
     return  (1/ (1+exp(-arg)))  # f(x) = 1 / (1+exp(-x))    f'(x) = f(x)*(1-f(x))
@@ -29,8 +42,9 @@ global inputNeurons
 def dropObjectToFile(obj, fileName):
     with open(fileName,'w') as f:
         for i in range(obj.__len__()):
-            f.write("%0.17f\n" % obj[i].value)
-            f.write("%0.17f\n" % obj[i].sigma)
+            f.write("%0.15f\n" % obj[i].value)
+            f.write("%0.15f\n" % obj[i].sigma)
+    f.close()
 
 def copyObject(obj):
     return obj;
@@ -60,23 +74,24 @@ def readDataForInputMlp():
     key = False
     inputMlpArray = []
     arr = []
-    for i in range(6):
+    for i in range(6):      #читываем все рабочие матрицы
         fileName = "matrixWork"+str(i)+"1.txt"
         with open(fileName,'r') as f:
-            arr = f.readlines()
-            arr = np.asfarray(arr,float)
+            arr = f.readlines() # чтение
+            arr = np.asfarray(arr,float)    # преобразование во loat
         inputMlpArray.extend(arr)   #Собрали 6 по 196 массивов в одном
     inputNeurons = []
     for i in range(len(inputMlpArray)):
-        inputNeurons.append(Neurons(inputMlpArray[i]))
+        inputNeurons.append(Neurons(inputMlpArray[i]))  #создали мноество объектов
     for i in range(len(inputMlpArray)):
-        inputNeurons[i].value = activation(inputNeurons[i].value)
-
+        inputNeurons[i].value = activation(inputNeurons[i].value)   # рогнали через функцию активации
+    dropObjectToFile(inputNeurons, "__inputMlp_before.txt")
     # записали все массивы в файл
     fileName = "weight_mlp0.txt"
     with open(fileName,'r') as f:
         weightMlp0 = np.asfarray(f.readlines(),float)   # Массив весов от входногодо 1 скрытого
-    print(len(weightMlp0))
+    weightMlp0 = np.reshape(weightMlp0,(-1,1176))   # сделали двумерный массив для организации связи каждый с каждым
+    print("in the MLP function weightMlp0 size is:", weightMlp0.size,weightMlp0.__len__(),len(weightMlp0),weightMlp0.shape)
     f.close()
     fileName = "weight_mlp1.txt"
     with open(fileName, 'r') as f:
@@ -89,19 +104,28 @@ def readDataForInputMlp():
     f.close()
     hidden1 = []                                        # Массив объектов нейронов 1 скрытого слоя
     hidden2 = []         # Массив объектов нейронов 2 скрытого слоя
-    print("weight_mlp_size0=",weightMlp0.size)
-    print("inputNeuron.value = len ==", inputNeurons.__len__())
-    for i in range(inputNeurons.__len__()):     # По количеству нейронов входного слоя
-        #hidden1.append(Neurons(1/(1+exp(weightMlp0[i]*inputNeurons[i].value))))
-        hidden1.append(Neurons(activation(inputNeurons[i].value)))  # Создаем объекты 1 скрытого слоя, прогоняя через сигмоиду сразу
-
-    for i in range(2000) : hidden2.append(Neurons(0))   #Создаем 2000 объектов класса Нейронов с начальным значением переменной =0
-    for i in range(inputNeurons.__len__()):
+    for i in range(weightMlp0.__len__()): hidden1.append(Neurons(0))
+    #print("hidden1_len=",hidden1.__len__(),hidden1.__sizeof__(),len(hidden1))
+    for i in range(2000): hidden2.append(Neurons(0))  # Создаем 2000 объектов класса Нейронов с начальным значением переменной =0
+    #print("hidden2_len=",hidden2.__len__(),hidden2.__sizeof__(),len(hidden2))
+    #print("inputNeurons_len=",inputNeurons.__len__())
+    #print("weightMlp0_len=",weightMlp0.size)
+    #print("hidden_len=",hidden1.__len__())
+    print("hidden1_len = ",hidden1.__len__(),hidden1.__sizeof__())
+    print("weightMlp0_len=",weightMlp0.size, weightMlp0.__len__(),weightMlp0.shape)
+    print("inputNeuron is len=",inputNeurons.__len__())
+    for i in range(0,inputNeurons.__len__()):
+        for j in range(0,weightMlp0.__len__()):
+            hidden1[j].value+= weightMlp0[i][j] * inputNeurons[i].value #Связь каждый с каждым. Не важно сколько данных на входе, нейронов один черт 1176
+    for i in range(hidden1.__len__()):
+        hidden1[i].value = activation(hidden1[i].value) # прогоняем через функцию активации для получения знаячения
+    print("hidden1_len=", hidden1.__len__(), len(hidden1))
+    for i in range(hidden1.__len__()):
         for j in range(2000):
             hidden2[j].value += weightMlp1[i][j] * hidden1[i].value # Расчитываем переменную в скрытом слое
     for i in range(2000):
         hidden2[i].value = activation(hidden2[i].value)  # Через функцию активации гоним нейронв 2 скрытого слоя
-
+    print("hidden2_len=", hidden2.__len__(), len(hidden2))
     outputNeuron = Neurons(0)
     for i in range(len(hidden2)):
         outputNeuron.value += weightMlp2[i]*hidden2[i].value
@@ -110,9 +134,9 @@ def readDataForInputMlp():
     dropObjectToFile(inputNeurons,"__inputMlp.txt")
     dropObjectToFile(hidden1, "__hidden1.txt")
     dropObjectToFile(hidden2, "__hidden2.txt")
-    print("Objects have dropped")
 
-    outputNeuron.sigma = 1-outputNeuron.value
+    control = contollerOfError(outputNeuron.value, 2)
+    outputNeuron.sigma = (1-outputNeuron.value) if int(control[0])==1 else (-(1-outputNeuron.value))
     print("output=", outputNeuron.value)
     print("sigma=" , outputNeuron.sigma)
     with open("__outputNeuron.txt", 'w') as f:
@@ -121,17 +145,21 @@ def readDataForInputMlp():
     f.close()
     fileName = "__inputMlp.txt"
     newList = getFileOfObjects(fileName)
-    print(len(newList))
-    Stop()
-    if outputNeuron.value < 0.7:
-        backPropogation(weightMlp0, weightMlp1, weightMlp2)
+    #Stop()
+
+    print(outputNeuron.value, "outputNeuron.value<0.7" if int(control[0])==1 else "outputNeuron.value>0.3")
+    if (outputNeuron.value<0.7) if int(control[0])==1 else (outputNeuron.value>0.3):    # If the face then 1st condition and else 2nd condition
+        print(int(control[0])==1)
+        print("condition +")
+        backPropogation(weightMlp0, weightMlp1, weightMlp2) #
         key = True
+
     else:
         key = False
         #Stop()
+        print("condition -")
 
 def backPropogation(weightMlp0 = [], weightMlp1 = [], weightMlp2 = []):
-    print(backPropogation.__name__,"is began")
     fileName = "__outputNeuron.txt"
     outputNeuron = getFileOfObjects(fileName)
     fileName = "__inputMlp.txt"
@@ -140,32 +168,31 @@ def backPropogation(weightMlp0 = [], weightMlp1 = [], weightMlp2 = []):
     hidden1 = getFileOfObjects(fileName)
     fileName = "__hidden2.txt"
     hidden2 = getFileOfObjects(fileName)
-
     #Переопределяем сигмы для каждого нейров на каждом слое
     # correct = 1 - output.result
     # sigma_new = sum(weight[i][j]*correct)
-    print("outputNeuron[0].value=",outputNeuron[0].value)
-    print("outputNeuron[0].sigma=", outputNeuron[0].sigma)
-    for i in range(len(hidden2)):   # От выхода ко второму скрытому
+    for i in range(0,len(hidden2)):   # От выхода ко второму скрытому
         hidden2[i].sigma = weightMlp2[i]*outputNeuron[0].sigma
-    for i in range(len(hidden1)):
+    for i in range(0,len(hidden1)):
         hidden1[i].sigma =0.0  # обнулили сигмы перед началом новго прохода
     # От второго скрытого к первому скрытому
-    for i in range(len(hidden1)):   # От второго скрытого к первому скрытому
-        for j in range(len(hidden2)):
+    for i in range(0,hidden1.__len__()):   # От второго скрытого к первому скрытому
+        for j in range(0,weightMlp1.__len__()):
             hidden1[i].sigma += weightMlp1[i][j] * outputNeuron[0].sigma
     # От первого скрытого к входным данным
-    for i in range(len(hidden1)):
-        inputNeurons[i].sigma = weightMlp0[i]*outputNeuron[0].sigma
+    for i in range(0,inputNeurons.__len__()):
+        for j in range(0,weightMlp0.__len__()):
+            inputNeurons[i].sigma += weightMlp0[i][j]*outputNeuron[0].sigma
     #Переопределяем веса в массивах. Для этого идем од входного к выходному
     file = open("weight_mlp0.txt",'w')
     #от входного до первого скрытого определяем набор весов
-    for i in range(len(weightMlp0)):
-        weightMlp0[i] += step*hidden1[i].sigma*derivative(activation(hidden1[i].value))*inputNeurons[i].value
-        file.write("%0.17f\n"%weightMlp0[i])
+    for i in range(inputNeurons.__len__()):
+        for j in range(hidden1.__len__()):
+            weightMlp0[i][j] += step*hidden1[i].sigma*derivative(activation(hidden1[i].value))*inputNeurons[i].value
+        file.write("%0.17f\n"%weightMlp0[i][j])
     file.close()
     file = open("weight_mlp1.txt", 'w')
-    for i in range(len(weightMlp1)):
+    for i in range(hidden1.__len__()):
         for j in range(2000):
             weightMlp1[i][j]+= step * hidden2[j].sigma * derivative(activation(hidden2[i].value))*hidden1[i].value
             file.write("%0.17f\n" % weightMlp1[i][j])
@@ -178,7 +205,5 @@ def backPropogation(weightMlp0 = [], weightMlp1 = [], weightMlp2 = []):
     dropObjectToFile(inputNeurons,"__inputMlp.txt")
     dropObjectToFile(hidden1, "__hidden1.txt")
     dropObjectToFile(hidden2, "__hidden2.txt")
-    print("Objects have dropped")
-    print(backPropogation.__name__, "is finished")
-
+    print(backPropogation.__name__+"is completed")
 

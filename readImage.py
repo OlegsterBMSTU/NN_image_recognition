@@ -14,18 +14,15 @@ def readImage(fileName):
         b = bytearray(f)    # Преобразуем все в байты в двоичную систему
 
     with open("testFile.txt",'w') as myFile:
-        print (b[10])
         # b[18] - информация о ширине в пикселях
         # b[22] - информация о высоте в пикселях
         for i in range(len(b)):
             myFile.write("%s\n" % b[i])
-    print(b[10])
     f1 = open("1_r.txt", 'w')
     f2 = open("1_g.txt", 'w')
     f3 = open("1_b.txt", 'w')
     i = b[10]   #Записываем номер индекса откуда начинается значимые
     dropSizeToFile(b)
-    print(len(b)-i)
     if (((len(b)-i) % 3) != 0): #Проверяем на кратность трем для работы и
         sizeArray = ((len(b)-i)) - ((len(b)-i) % 3) # если надо то обрезаем
     else:
@@ -41,7 +38,6 @@ def readImage(fileName):
     f3.close()
 
     # Так как в 10 бите находится информация о стартовом бите значимой информации
-    print(readImage.__name__, "is completed")
 
 def dropSizeToFile(b = []):
     with open("size.txt",'w') as f:

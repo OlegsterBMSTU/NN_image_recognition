@@ -1,6 +1,6 @@
 import numpy as np
-from common import Point
-from common import newPoint
+from main import Point
+from main import newPoint
 from random import randrange
 
 

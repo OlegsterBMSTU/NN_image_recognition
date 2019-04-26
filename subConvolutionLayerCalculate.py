@@ -1,5 +1,5 @@
 import numpy as np
-from common import Point
+from main import Point
 
 
 def getSize():  #Возвращает значимые параметры bmp из файла с его размерами.
@@ -29,13 +29,11 @@ def test(i1,i2):
     # должен быть квадратны то мы извлекаем квадратны корень из длины всего массива
     del arr[int(sizeArray*len(arr)//sizeArray):] #обрехаем под прямоуголькую матрицу. Лучше удалить крайние элементы, чем наращивать непонятно чем.
     global matrixWork
-    print("len_arr=",len(arr), "sizeArray=",sizeArray)
     matrixWork = np.reshape(arr,(-1,sizeArray)) #Преобразовали одномерный в двумерный массив размерностью sizeArray
 
 def reLu(i1,i2):
     steps = int(sizeArray**2 / 16)  # это справедливо для квадратной матрицы
     #steps = (sizeArray//4+1) *  ((len(matrixWork)//sizeArray)+1)        # колисество секторов округляем в большую сторону, т.к. не все 4х4
-    print("sizeArray=", sizeArray)
     maximum =[]
     ai,aj,k,i,j=0,0,0,0,0
     numberString = 0
@@ -47,7 +45,6 @@ def reLu(i1,i2):
     key2 = False
 
     while (k< steps):   # пока не набрали достаточное количество карт
-        #if k ==0 : print(k,i,j, "==", (i*sizeArray + j)+1)
         if (key == True):       # если запись разрешена. Для каждой новой первой карты 4х4 первый элемент записываем как максимальный
             maximum.append(matrixWork[i][j]) #Для каждой новой первой карты 4х4 первый элемент записываем как максимальный
             key = False # и сразу же блокируем ключ. Поднимаем когда всю карту 4х4 просмотрели.
@@ -93,17 +90,12 @@ def reLu(i1,i2):
 
 
 
-def newRelu(index1, index2):
+def maxPooling(index1, index2):
     size = 4
-    print("size_matrix_work: ",matrixWork.size,"\nhigh_MW= ",matrixWork.size//len(matrixWork))
     maximum = np.zeros((matrixWork.size)//(size**2))       #Создали массив квадратной матрицы размером m*n, заполненны нулями
     maximum = np.asfarray(maximum,float)    # на всякий сучай преобразуем во float
     # индекс массива определяем как: количество строк по 4 матрицы * i // 4 + j // 4
-    quantityOfString = (len(matrixWork)// size)    #
-    print("len_maximum_array=", len(maximum))
-    print("numberString=",quantityOfString)
-    print("max_i=",len(matrixWork))
-    print("max_j=", matrixWork.size//len(matrixWork))
+    quantityOfString = (len(matrixWork)// size)
     for i in range(len(matrixWork)):
         for j in range(len(matrixWork)):
             if ((j+1)%size == 0) and ((i+1)%size == 0):
@@ -113,7 +105,6 @@ def newRelu(index1, index2):
     for i in range(len(matrixWork)):
         for j in range(len(matrixWork)):
             maximum[quantityOfString*(i//size) + j//size] = max(matrixWork[i][j],maximum[quantityOfString*(i//size) + (j//size)])
-    print("len_maximum_array=" ,len(maximum))
     fileName = "matrixWork"+str(index1)+str(index2)+".txt"
     with open(fileName, 'w') as f:
         f.writelines("%f\n" % z for z in maximum)
@@ -123,6 +114,5 @@ def newRelu(index1, index2):
 
 def complete(index1, index2):
     test(index1, index2)
-    #reLu(index1, index2)
-    newRelu(index1,index2)
+    maxPooling(index1,index2)
 

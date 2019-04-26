@@ -1,7 +1,9 @@
 import numpy as np
-from common import Point
+from main import Point
 from random import randrange
-from common import Stop
+from main import Stop
+
+step = 0.5
 
 
 coordinate = Point()
@@ -27,22 +29,18 @@ def choiseFile(i,j):   # Выбирает конкретный файл для �
 
 def getArrays(i,j): # Заполняем массивы данных. Переменные глобальны
     fileName = "matrixWork"+str(i)+str(j)+".txt"
-    print(fileName)
     with open(fileName,'r') as f:
         outputArray = np.asfarray(f.readlines(),float)  # filling array of output data
     # transform 1d to 2d array, where 1 side is  equality square root from length of array
     outputArray = list(outputArray)
-    print(len(outputArray))
     outputArray = np.reshape(outputArray,(-1,int(len(outputArray)**(1/2))))
     f.close()
     fileName = "exitConvolution"+str(i)+str(j)+'.txt'
-    print(fileName)
     with open(fileName,'r') as f:
         middleArray = np.asfarray(f.readlines(),float)
     middleArray = np.reshape(middleArray,(-1,int((len(middleArray)**(1/2)))))
     f.close()
     fileName = choiseFile(i,j)  # Выбираем либо файл r,g,b, либо matrixWork
-    print(fileName)
     with open(fileName,'r') as f:
         inputArray = np.asfarray(f.readlines(),float)
 #    inputArray = np.reshape(inputArray,(-1,int(len(inputArray)**(1/2)))) #надо продумать обрезку краты.
@@ -59,9 +57,6 @@ def choiseCoordinate(outputArray = [], middleArray = []):
     number = randrange(0,len(outputArray))
     p.i = number//len(outputArray)
     p.j = number % len(outputArray)
-    print(number,p.i,p.j)
-    print("outputArray\nlen=", len(outputArray)," high=", (outputArray.__len__()))
-    print("middleArray\nlen=", middleArray.__len__(), " high=", middleArray.__sizeof__())
     for i in range(p.i*4,p.i*4+4):
         for j in range(p.j*4,p.j*4+4):
             if outputArray[p.i][p.j] == middleArray[i][j]: # Подумать. Возможно надо middle & input
@@ -93,7 +88,12 @@ def writeNewCore(i,j,inputArray = []):
     for i in range(coordinate.i,coordinate.i+5):
         for j in range(coordinate.j,coordinate.j+5):
             #1dsize = i * size + j
-            newWeightArray.append(weightArray[k]+1*sigma*inputArray[i*int(len(inputArray)**(1/2))+j])
+            result = weightArray[k]+sigma*inputArray[i*int(len(inputArray)**(1/2))+j] * step
+            if result<(-1.0):
+                result=(-1.0)
+            elif result>(1.0):
+                result = (1.0)
+            newWeightArray.append(result)
             k+=1
     fileName = "Core"+adder+".txt"
     with open(fileName,'w') as f:
@@ -103,6 +103,7 @@ def writeNewCore(i,j,inputArray = []):
 
 def correctionCore(i,j):
     getArrays(i,j)
+    #print("correctionCore"+str(i)+str(j)+" is completed")
 
 
 
